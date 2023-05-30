@@ -1,17 +1,53 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+const baseUrl = "https://api.github.com/users/";
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+function App() {
+  const [username, setUsername] = React.useState("codeartistryio");
+  const [user, setUser] = React.useState(null);
+  const searchInput = React.useRef();
+
+  React.useEffect(() => {
+    getUser();
+    // fetch(endpoint)
+    //   .then(response => response.json())
+    //   .then(data => setUser(data));
+  }, []);
+
+  function handleClearInput() {
+    searchInput.current.value = "";
+    searchInput.current.focus();
+  }
+
+  async function getUser() {
+    const response = await fetch(`${baseUrl}${username}`);
+    const data = await response.json();
+    setUser(data);
+  }
+
+  return (
+    <div>
+      <input
+        type="text"
+        placeholder="Input username"
+        onChange={event => setUsername(event.target.value)}
+        ref={searchInput}
+      />
+      <button onClick={() => getUser(username)}>Search</button>
+      <button onClick={handleClearInput}>Clear</button>
+      {user ? (
+        <div>
+          <h2>{user.name}</h2>
+          <p>{user.bio}</p>
+          <img alt="avatar" src={user.avatar_url} style={{ height: 50 }} />
+        </div>
+      ) : (
+        <p>loading</p>
+      )}
+    </div>
+  );
+}
+
+const rootNode = document.getElementById("root");
+ReactDOM.render(<App />, rootNode);
